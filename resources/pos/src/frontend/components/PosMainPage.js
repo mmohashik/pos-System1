@@ -640,7 +640,7 @@ const PosMainPage = (props) => {
                                                         setUpdateProducts={
                                                             setUpdateProducts
                                                         }
-                                                        customerId={selectedCustomerOption ? selectedCustomerOption.value : null}
+                                                        // customerId={selectedCustomerOption ? selectedCustomerOption.value : null} // Removed
                                                     />
                                                 );
                                             }
@@ -732,6 +732,7 @@ const PosMainPage = (props) => {
                                 settings={settings}
                                 productMsg={productMsg}
                                 selectedOption={selectedOption}
+                                selectedCustomer={selectedCustomerOption}
                             />
                         </div>
                     </div>

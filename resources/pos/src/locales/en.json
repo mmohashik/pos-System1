@@ -815,5 +815,6 @@
     "product.type.input.validation.error": "Please select product type",
     "products.warehouse.title":"Product Warehouse",
     "barcode-symbol-uppercase-validation-message":"Please enter only uppercase letters and numbers for Code 39 Barcode Symbology.",
-    "sale.product-qty.limit.validate.message":"You can't buy more than limit quantity"
+    "sale.product-qty.limit.validate.message":"You can't buy more than limit quantity",
+    "pos.last-price.label": "Last price:"
 }

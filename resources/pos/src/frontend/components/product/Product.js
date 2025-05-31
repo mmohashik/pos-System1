@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { Card, Badge } from "react-bootstrap-v5";
-import { connect, useDispatch } from "react-redux";
+import { connect, useDispatch, useSelector } from "react-redux";
 import useSound from "use-sound";
 import { posFetchProduct } from "../../../store/action/pos/posfetchProductAction";
 import { posAllProduct } from "../../../store/action/pos/posAllProductAction";
+import { fetchLastSalePrice } from "../../../store/action/productAction"; // Added
 import productImage from "../../../assets/images/brand_logo.png";
 import { addToast } from "../../../store/action/toastAction";
 import {
@@ -26,12 +27,15 @@ const Product = (props) => {
         newCost,
         selectedOption,
         allConfigData,
+        selectedCustomer, // Added prop
     } = props;
     const [updateProducts, setUpdateProducts] = useState([]);
     const [play] = useSound(
         "https://s3.amazonaws.com/freecodecamp/drums/Heater-4_1.mp3"
     );
     const dispatch = useDispatch();
+    const { lastSalePrices } = useSelector(state => state.products); // Added
+    const customerId = selectedCustomer?.value; // Extracted customerId
 
     useEffect(() => {
         // update cart while cart is updated
@@ -41,6 +45,19 @@ const Product = (props) => {
         });
         setCartProductIds(ids);
     }, [updateProducts, cartProducts]);
+
+    useEffect(() => {
+        if (customerId && posAllProducts && posAllProducts.length > 0) {
+            posAllProducts.forEach(product => {
+                if (product.id) {
+                    const priceKey = `${product.id}_${customerId}`;
+                    if (lastSalePrices && lastSalePrices[priceKey] === undefined) {
+                        dispatch(fetchLastSalePrice(product.id, customerId));
+                    }
+                }
+            });
+        }
+    }, [posAllProducts, customerId, dispatch, lastSalePrices]);
 
     const addToCart = (product) => {
         play();
@@ -168,6 +185,16 @@ const Product = (props) => {
                             </Badge>
                         </p>
                         <p className="m-0 item-badge">
+                            {customerId && lastSalePrices && lastSalePrices[`${product.id}_${customerId}`] !== undefined && (
+                                <span className="d-block fs-small mb-1">
+                                    {lastSalePrices[`${product.id}_${customerId}`] === null
+                                        ? <span className="text-muted">-</span>
+                                        : <span className="text-success">
+                                            {getFormattedMessage("pos.last-price.label")}: {currencySymbolHandling(allConfigData, settings.attributes?.currency_symbol, lastSalePrices[`${product.id}_${customerId}`])}
+                                          </span>
+                                    }
+                                </span>
+                            )}
                             <Badge
                                 bg="primary"
                                 text="white"
@@ -223,10 +250,10 @@ const Product = (props) => {
 };
 
 const mapStateToProps = (state) => {
-    const { posAllProducts, allConfigData } = state;
-    return { posAllProducts, allConfigData };
+    const { posAllProducts, allConfigData, products } = state; // Added products to map lastSalePrices if not using useSelector
+    return { posAllProducts, allConfigData, lastSalePrices: products.lastSalePrices }; // Ensure lastSalePrices is available if not using useSelector
 };
 
-export default connect(mapStateToProps, { posAllProduct, posFetchProduct })(
+export default connect(mapStateToProps, { posAllProduct, posFetchProduct, fetchLastSalePrice })( // Added fetchLastSalePrice
     Product
 );
