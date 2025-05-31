@@ -126,6 +126,18 @@ const Product = (props) => {
         );
     //Cart Item Array
     const loadAllProduct = (product, index) => {
+        let displayValue = "";
+        if (customerId && lastSalePrices) {
+            const priceKey = `${product.id}_${customerId}`;
+            if (lastSalePrices[priceKey] === null) {
+                displayValue = "-";
+            } else if (typeof lastSalePrices[priceKey] === 'number') {
+                displayValue = getFormattedMessage("pos.last-price.label") + " " + Number(lastSalePrices[priceKey]).toFixed(2);
+            } else if (lastSalePrices[priceKey] === undefined) {
+                displayValue = "..."; // Loading indicator
+            }
+        }
+
         const findDifferentWords = (str1, str2) => {
             const words1 = str1.split("_");
             const words2 = str2.split("_");
@@ -184,15 +196,10 @@ const Product = (props) => {
                                 {product?.attributes?.product_unit_name?.name}
                             </Badge>
                         </p>
-                        <p className="m-0 item-badge">
-                            {customerId && lastSalePrices && lastSalePrices[`${product.id}_${customerId}`] !== undefined && (
+                        <p className="m-0 item-badge product-last-customer-price">
+                            {customerId && (
                                 <span className="d-block fs-small mb-1">
-                                    {lastSalePrices[`${product.id}_${customerId}`] === null
-                                        ? <span className="text-muted">-</span>
-                                        : <span className="text-success">
-                                            {getFormattedMessage("pos.last-price.label")}: {currencySymbolHandling(allConfigData, settings.attributes?.currency_symbol, lastSalePrices[`${product.id}_${customerId}`])}
-                                          </span>
-                                    }
+                                    {displayValue}
                                 </span>
                             )}
                             <Badge
