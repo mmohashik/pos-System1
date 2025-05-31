@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { InputGroup } from "react-bootstrap-v5";
+import { apiBaseURL } from "../../../constants/index";
 import { connect, useDispatch } from "react-redux";
 import Form from "react-bootstrap/Form";
 import {
@@ -36,9 +37,11 @@ const ProductTableBody = (props) => {
         updateSaleUnit,
         frontSetting,
         allConfigData,
+        customerId
     } = props;
     const [isShowModal, setIsShowModal] = useState(false);
     const [updateProductData, setUpdateProductData] = useState([]);
+    const [lastPrice, setLastPrice] = useState('-');
     const dispatch = useDispatch();
 
     useEffect(() => {
@@ -49,6 +52,33 @@ const ProductTableBody = (props) => {
     useEffect(() => {
         singleProduct.sub_total = Number(subTotalCount(singleProduct));
     }, [singleProduct.sub_total]);
+
+    useEffect(() => {
+        const fetchLastPrice = async () => {
+            const currentCustomerId = customerId && customerId.value ? customerId.value : customerId;
+            if (singleProduct && singleProduct.id && currentCustomerId) {
+                try {
+                    const response = await fetch(`${apiBaseURL}/get-last-sale-price/${singleProduct.id}/${currentCustomerId}`);
+                    if (response.ok) {
+                        const data = await response.json();
+                        if (data.success && data.data !== null) {
+                            setLastPrice(currencySymbolHandling(allConfigData, frontSetting.value && frontSetting.value.currency_symbol, data.data.toFixed(2)));
+                        } else {
+                            setLastPrice('-');
+                        }
+                    } else {
+                        setLastPrice('-');
+                    }
+                } catch (error) {
+                    console.error("Error fetching last price:", error);
+                    setLastPrice('-');
+                }
+            } else {
+                setLastPrice('-');
+            }
+        };
+        fetchLastPrice();
+    }, [singleProduct, customerId, frontSetting, allConfigData]);
 
     const onProductUpdateInCart = (item) => {
         setUpdateProductData(item);
@@ -201,6 +231,7 @@ const ProductTableBody = (props) => {
                         amountBeforeTax(singleProduct).toFixed(2)
                     )}
                 </td>
+                <td>{lastPrice}</td>
                 <td>
                     {singleProduct.isEdit ? (
                         singleProduct.stock.length >= 1 ? (

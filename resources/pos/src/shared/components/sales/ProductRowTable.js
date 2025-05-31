@@ -6,7 +6,7 @@ import {getFormattedMessage} from '../../sharedMethod';
 const ProductRowTable = (props) => {
     const {
         updateProducts, setUpdateProducts, updatedQty, updateCost, updateDiscount, updateTax,
-        frontSetting, updateSubTotal, updateSaleUnit, isSaleReturn
+        frontSetting, updateSubTotal, updateSaleUnit, isSaleReturn, customerId
     } = props;
 
     useEffect(() => {
@@ -19,6 +19,7 @@ const ProductRowTable = (props) => {
             <tr>
                 <th>{getFormattedMessage('product.title')}</th>
                 <th>{getFormattedMessage('sale.order-item.table.net-unit-price.column.label')}</th>
+                <th>{getFormattedMessage('sale.order-item.table.last-price.column.label')}</th>
                 <th>{getFormattedMessage('purchase.order-item.table.stock.column.label')}</th>
                 <th className='text-lg-start text-center'>{getFormattedMessage('purchase.order-item.table.qty.column.label')}</th>
                 <th>{getFormattedMessage('purchase.order-item.table.discount.column.label')}</th>
@@ -33,11 +34,12 @@ const ProductRowTable = (props) => {
                                          setUpdateProducts={setUpdateProducts} frontSetting={frontSetting}
                                          updateQty={updatedQty} updateCost={updateCost}
                                          updateDiscount={updateDiscount} updateTax={updateTax}
-                                         updateSubTotal={updateSubTotal} updateSaleUnit={updateSaleUnit}/>
+                                         updateSubTotal={updateSubTotal} updateSaleUnit={updateSaleUnit}
+                                         customerId={customerId} />
                 })}
             {!updateProducts.length &&
                 <tr>
-                    <td colSpan={8} className='fs-5 px-3 py-6 custom-text-center'>
+                    <td colSpan={9} className='fs-5 px-3 py-6 custom-text-center'>
                         {getFormattedMessage('sale.product.table.no-data.label')}
                     </td>
                 </tr>

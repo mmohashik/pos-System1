@@ -349,6 +349,7 @@ const SalesForm = ( props ) => {
                             updateCost={updateCost} updateDiscount={updateDiscount}
                             updateTax={updateTax} updateSubTotal={updateSubTotal}
                             updateSaleUnit={updateSaleUnit}
+                            customerId={saleValue.customer_id}
                         />
                     </div>
                     <div className='col-12'>
