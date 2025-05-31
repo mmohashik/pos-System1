@@ -176,6 +176,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::resource('sales', SaleAPIController::class);
     Route::get('sale-pdf-download/{sale}', [SaleAPIController::class, 'pdfDownload'])->name('sale-pdf-download');
     Route::get('sale-info/{sale}', [SaleAPIController::class, 'saleInfo'])->name('sale-info');
+    Route::get('/products/{productId}/customers/{customerId}/last-sale-price', [SaleAPIController::class, 'getLastSalePriceForCustomer']);
 
     Route::post('sales/{sale}/capture-payment', [SalesPaymentAPIController::class, 'createSalePayment']);
     Route::get('sales/{sale}/payments', [SalesPaymentAPIController::class, 'getAllPayments']);
