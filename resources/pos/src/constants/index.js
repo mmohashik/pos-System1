@@ -604,6 +604,7 @@ export const productActionType = {
     ADD_MAIN_PRODUCT: "ADD_MAIN_PRODUCT",
     EDIT_MAIN_PRODUCT: "EDIT_MAIN_PRODUCT",
     DELETE_MAIN_PRODUCT: "DELETE_MAIN_PRODUCT",
+    FETCH_LAST_SALE_PRICE: "FETCH_LAST_SALE_PRICE",
 };
 
 export const posProductActionType = {

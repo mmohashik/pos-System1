@@ -3,6 +3,8 @@
 namespace App\Repositories;
 
 use App\Models\Product;
+use App\Models\Sale;
+use App\Models\SaleItem;
 use App\Models\Purchase;
 use App\Models\PurchaseItem;
 use Exception;
@@ -231,5 +233,25 @@ class ProductRepository extends BaseRepository
         );
 
         return true;
+    }
+
+    /**
+     * Get the last sale price for a given product and customer.
+     *
+     * @param  int  $productId
+     * @param  int  $customerId
+     * @return float|null
+     */
+    public function getLastSalePrice(int $productId, int $customerId): ?float
+    {
+        $saleItem = SaleItem::query()
+            ->join('sales', 'sales.id', '=', 'sale_items.sale_id')
+            ->where('sale_items.product_id', $productId)
+            ->where('sales.customer_id', $customerId)
+            ->orderByDesc('sales.date')
+            ->select('sale_items.product_price')
+            ->first();
+
+        return $saleItem ? (float) $saleItem->product_price : null;
     }
 }

@@ -11,6 +11,7 @@ import { setLoading } from "./loadingAction";
 import { getFormattedMessage } from "../../shared/sharedMethod";
 import { setSavingButton } from "./saveButtonAction";
 import { callImportProductApi } from "./importProductApiAction";
+import apiConfigWthFormData from "../../config/apiConfigWthFormData";
 
 export const fetchProducts =
     (filter = {}, isLoading = true) =>
@@ -245,7 +246,23 @@ export const fetchAllMainProducts = (filter = {}, isLoading = true) => async (di
                 addToast({ text: response.data.message, type: toastType.ERROR })
             );
         });
-}
+};
+
+export const fetchLastSalePrice = (productId, customerId) => async (dispatch) => {
+    dispatch(setLoading(true));
+    apiConfigWthFormData.get(`/products/${productId}/customers/${customerId}/last-sale-price`)
+        .then((response) => {
+            dispatch({
+                type: productActionType.FETCH_LAST_SALE_PRICE,
+                payload: { productId, customerId, price: response.data.data }
+            });
+            dispatch(setLoading(false));
+        })
+        .catch(({ response }) => {
+            dispatch(addToast({ text: response ? response.data.message : 'Error fetching last sale price.', type: toastType.ERROR }));
+            dispatch(setLoading(false));
+        });
+};
 
 export const deleteMainProduct = (productId) => async (dispatch) => {
     apiConfig

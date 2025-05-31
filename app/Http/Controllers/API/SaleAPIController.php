@@ -12,6 +12,7 @@ use App\Models\Hold;
 use App\Models\Sale;
 use App\Models\Setting;
 use App\Models\Warehouse;
+use App\Repositories\ProductRepository;
 use App\Repositories\SaleRepository;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Exception;
@@ -31,9 +32,13 @@ class SaleAPIController extends AppBaseController
     /** @var saleRepository */
     private $saleRepository;
 
-    public function __construct(SaleRepository $saleRepository)
+    /** @var ProductRepository */
+    private $productRepository;
+
+    public function __construct(SaleRepository $saleRepository, ProductRepository $productRepository)
     {
         $this->saleRepository = $saleRepository;
+        $this->productRepository = $productRepository;
     }
 
     public function index(Request $request): SaleCollection
@@ -193,5 +198,23 @@ class SaleAPIController extends AppBaseController
         SaleResource::usingWithCollection();
 
         return new SaleCollection($sales);
+    }
+
+    /**
+     * Get the last sale price for a customer for a specific product.
+     *
+     * @param  int  $productId
+     * @param  int  $customerId
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getLastSalePriceForCustomer(int $productId, int $customerId): JsonResponse
+    {
+        $price = $this->productRepository->getLastSalePrice($productId, $customerId);
+
+        if (is_null($price)) {
+            return $this->sendError('No sale record found for this product and customer.');
+        }
+
+        return $this->sendResponse($price, 'Last sale price retrieved successfully.');
     }
 }

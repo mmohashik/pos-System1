@@ -1,6 +1,6 @@
 import React from "react";
 import { Button } from "react-bootstrap-v5";
-import { connect, useDispatch } from "react-redux";
+import { connect, useDispatch, useSelector } from "react-redux";
 import {
     currencySymbolHandling,
     decimalValidate,
@@ -20,8 +20,11 @@ const ProductCartList = (props) => {
         setUpdateProducts,
         posAllProducts,
         allConfigData,
+        customerId, // Added customerId prop
     } = props;
     const dispatch = useDispatch();
+    const { lastSalePrices } = useSelector(state => state.products); // Assuming 'products' is the key for product reducer
+
     const totalQty = posAllProducts
         .filter((product) => product.id === singleProduct.id)
         .map((product) => product.attributes.stock.quantity);
@@ -117,6 +120,16 @@ const ProductCartList = (props) => {
                         onClick={() => onClickUpdateItemInCart(singleProduct)}
                     />
                 </span>
+                {customerId && lastSalePrices && lastSalePrices[`${singleProduct.id}_${customerId}`] !== undefined && (
+                    <div style={{ fontSize: '0.75rem', marginTop: '0.25rem' }}>
+                        {lastSalePrices[`${singleProduct.id}_${customerId}`] === null
+                            ? <span className="text-muted">{getFormattedMessage("pos.no-previous-price.label")}</span>
+                            : <span className="text-success">
+                                {getFormattedMessage("pos.last-price.label")}: {currencySymbolHandling(allConfigData, frontSetting.value?.currency_symbol, lastSalePrices[`${singleProduct.id}_${customerId}`])}
+                              </span>
+                        }
+                    </div>
+                )}
             </td>
             <td>
                 <div className="counter d-flex align-items-center pos-custom-qty">

@@ -37,6 +37,7 @@ import {
     fetchTodaySaleOverAllReport,
     getAllRegisterDetailsAction,
 } from "../../store/action/pos/posRegisterDetailsAction";
+import { fetchLastSalePrice } from "../../store/action/productAction";
 import {
     getFormattedMessage,
     getFormattedOptions,
@@ -105,7 +106,8 @@ const PosMainPage = (props) => {
     // const [searchString, setSearchString] = useState('');
     const [changeReturn, setChangeReturn] = useState(0);
     const [showCloseDetailsModal, setShowCloseDetailsModal] = useState(false);
-    const { closeRegisterDetails } = useSelector((state) => state);
+    const { closeRegisterDetails, products } = useSelector((state) => state);
+    const { lastSalePrices } = products;
     const dispatch = useDispatch();
     const navigate = useNavigate();
 
@@ -186,6 +188,18 @@ const PosMainPage = (props) => {
     useEffect(() => {
         setUpdateProducts(updateProducts);
     }, [quantity, grandTotal]);
+
+    useEffect(() => {
+        if (selectedCustomerOption && selectedCustomerOption.value && updateProducts && updateProducts.length > 0) {
+            updateProducts.forEach(productInCart => {
+                const priceKey = `${productInCart.id}_${selectedCustomerOption.value}`;
+                if (productInCart.id && (!lastSalePrices || lastSalePrices[priceKey] === undefined)) {
+                     // Check if undefined to allow re-fetch if API returned null previously but we want to retry
+                    dispatch(fetchLastSalePrice(productInCart.id, selectedCustomerOption.value));
+                }
+            });
+        }
+    }, [updateProducts, selectedCustomerOption, dispatch, lastSalePrices]);
 
     const handleValidation = () => {
         let errors = {};
@@ -626,6 +640,7 @@ const PosMainPage = (props) => {
                                                         setUpdateProducts={
                                                             setUpdateProducts
                                                         }
+                                                        customerId={selectedCustomerOption ? selectedCustomerOption.value : null}
                                                     />
                                                 );
                                             }
@@ -828,4 +843,5 @@ export default connect(mapStateToProps, {
     posAllProduct,
     fetchBrandClickable,
     fetchHoldLists,
+    fetchLastSalePrice,
 })(PosMainPage);
